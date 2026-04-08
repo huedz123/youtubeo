@@ -28,13 +28,15 @@ public function register(Request $request) {
     'avatar5.png'
 ];
 
+// Lấy file ngẫu nhiên
+$defaultAvatar = $avatars[array_rand($avatars)] ?? 'avatar1.png';
+
+// Lưu path vào DB (chỉ filename an toàn, không chứa ../)
 $user = User::create([
     'name' => $request->name,
     'email' => $request->email,
     'password' => Hash::make($request->password),
-
-    // 👇 nếu random lỗi thì vẫn có fallback
-    'avatar' => $avatars[array_rand($avatars)] ?? 'avatar1.png',
+    'avatar' => 'avatars/' . $defaultAvatar, // lưu path trong storage
 ]);
 
     auth()->login($user);

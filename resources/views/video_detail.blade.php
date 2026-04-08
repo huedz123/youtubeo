@@ -34,7 +34,7 @@
 <div class="avatar-wrapper">
 
     <!-- AVATAR -->
-    <img src="{{ asset('avatars/' . Auth::user()->avatar) }}" 
+     <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img"
          class="avatar-img"
          onclick="toggleAvatarMenu()">
 
@@ -60,10 +60,16 @@
 <div class="container">
 
   <aside class="sidebar collapsed">
-    <div class="item"><span>🏠</span><p>Trang chủ</p></div>
+  <a href="/" class="item">
+  <span>🏠</span>
+  <p>Trang chủ</p>
+</a>
     <div class="item"><span>🎬</span><p>Shorts</p></div>
     <div class="item"><span>📺</span><p>Kênh đăng ký</p></div>
-    <div class="item"><span>👥</span><p>Bạn</p></div>
+   <a href="/profile" class="item">
+    <span>👥</span>
+    <p>Bạn</p>
+</a>
   </aside>
 
   <main class="content">
@@ -72,16 +78,16 @@
 
       <!-- LEFT -->
       <div class="main-video">
-        <video controls autoplay>
-          <source src="{{ asset($video->video_path) }}" type="video/mp4">
-        </video>
+        <video controls width="100%" autoplay>
+    <source src="{{ asset('storage/' . $video->video_path) }}" type="video/mp4">
+</video>
 
         <h2>{{ $video->title }}</h2>
         <p>{{ $video->views ?? 0 }} lượt xem</p>
 <div class="channel-box">
 
   <div class="channel-info">
-  <img src="{{ asset('avatars/' . ($video->user->avatar ?? 'default.png')) }}" class="avatar">
+  <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img">
 
     <div>
       <h4>{{ $video->user->name ?? 'Unknown' }}</h4>
@@ -95,19 +101,19 @@
 
 </div>
         <!-- ✅ FIX: actions nằm trong main-video -->
-        <div class="video-actions">
-          <button onclick="likeVideo({{ $video->id }})">
-            👍 <span id="like-count">{{ $video->likes ?? 0 }}</span>
-          </button>
+      <div class="video-actions">
+    <button id="likeBtn" onclick="likeVideo({{ $video->id }})">
+        👍 <span id="like-count">{{ $video->likes ?? 0 }}</span>
+    </button>
 
-          <button onclick="dislikeVideo({{ $video->id }})">
-            👎 <span id="dislike-count">{{ $video->dislikes ?? 0 }}</span>
-          </button>
+    <button id="dislikeBtn" onclick="dislikeVideo({{ $video->id }})">
+        👎 <span id="dislike-count">{{ $video->dislikes ?? 0 }}</span>
+    </button>
 
-          <button onclick="shareVideo({{ $video->id }})">
-            🔗 Share
-          </button>
-        </div>
+    <button onclick="shareVideo({{ $video->id }})">
+        🔗 Share
+    </button>
+</div>
 
         <!-- Description -->
         <div class="video-description">
@@ -146,28 +152,34 @@
 
       <!-- RIGHT -->
       <div class="suggested">
-        @foreach($videos as $v)
-          @if($v->id != $video->id)
-          <a href="{{ route('video.show', $v->id) }}">
+    @foreach($videos as $v)
+        @if($v->id != $video->id)
+        <a href="{{ route('video.show', $v->id) }}">
             <div class="suggest-card">
-              <video>
-                <source src="{{ asset($v->video_path) }}" type="video/mp4">
-              </video>
+                <!-- Thumbnail hiển thị đúng kích cỡ -->
+                <img src="{{ asset('storage/' . ($v->thumbnail ?? 'thumbnails/default.png')) }}" 
+                     alt="{{ $v->title }}" 
+                     class="thumbnail-img"
+                     style="width: 160px; height: 90px; object-fit: cover;"> <!-- giữ tỉ lệ 16:9 -->
 
-              <div>
-                <h4>{{ $v->title }}</h4>
-                <p>{{ $v->views ?? 0 }} lượt xem</p>
-              </div>
+                <div class="suggest-info">
+                    <h4>{{ $v->title }}</h4>
+                    <p>{{ $v->views ?? 0 }} lượt xem</p>
+                </div>
             </div>
-          </a>
-          @endif
-        @endforeach
-      </div>
+        </a>
+        @endif
+    @endforeach
+</div>
 
     </div>
 
   </main>
 </div>
-
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    updateButtons("{{ $userVote }}");
+});
+</script>
 </body>
 </html>

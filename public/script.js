@@ -38,45 +38,39 @@ function uploadVideo() {
 }
 
 function likeVideo(id) {
-  fetch(`/video/${id}/like`, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    }
-  })
-  .then(res => {
-    if (res.status === 401) {
-      alert("Phải đăng nhập!");
-      return;
-    }
-    return res.json();
-  })
-  .then(data => {
-    if (data) {
-      document.getElementById('like-count').innerText = data.likes;
-    }
-  });
+    fetch(`/video/${id}/like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            document.getElementById('like-count').textContent = data.likes;
+            document.getElementById('dislike-count').textContent = data.dislikes;
+
+            updateButtons(data.user_vote);
+        }
+    });
 }
 
 function dislikeVideo(id) {
-  fetch(`/video/${id}/dislike`, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    }
-  })
-  .then(res => {
-    if (res.status === 401) {
-      alert("Phải đăng nhập!");
-      return;
-    }
-    return res.json();
-  })
-  .then(data => {
-    if (data) {
-      document.getElementById('dislike-count').innerText = data.dislikes;
-    }
-  });
+    fetch(`/video/${id}/dislike`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            document.getElementById('like-count').textContent = data.likes;
+            document.getElementById('dislike-count').textContent = data.dislikes;
+
+            updateButtons(data.user_vote);
+        }
+    });
 }
 
 function postComment(e, id) {
@@ -130,3 +124,45 @@ document.querySelector('.avatar-img')?.addEventListener('click', function(e) {
   toggleAvatarMenu();
 });
 
+function openEditModal(id, title, desc) {
+    document.getElementById('editModal').style.display = 'block';
+
+    document.getElementById('editId').value = id;
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDesc').value = desc;
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function filterCategory(type) {
+  const videos = document.querySelectorAll('.video-card');
+
+  videos.forEach(video => {
+    const category = video.getAttribute('data-category');
+
+    if (type === 'all' || category === type) {
+      video.style.display = '';
+    } else {
+      video.style.display = 'none';
+    }
+  });
+}
+
+
+
+function updateButtons(vote) {
+    const likeBtn = document.getElementById('likeBtn');
+    const dislikeBtn = document.getElementById('dislikeBtn');
+
+    // reset
+    likeBtn.classList.remove('active');
+    dislikeBtn.classList.remove('active');
+
+    if (vote === 'like') {
+        likeBtn.classList.add('active');
+    } else if (vote === 'dislike') {
+        dislikeBtn.classList.add('active');
+    }
+}

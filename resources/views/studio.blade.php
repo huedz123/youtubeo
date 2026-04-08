@@ -48,7 +48,7 @@
     @if(Auth::check())
     <div class="avatar-wrapper">
     <!-- avatar img chỉ còn class, không onclick -->
-<img src="{{ asset('avatars/' . Auth::user()->avatar) }}" class="avatar-img">
+<img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img">
       <div id="avatarMenu" class="avatar-menu" style="display:none;">
           <a href="/profile">Kênh của bạn</a>
           <a href="/studio">YouTube Studio</a>
@@ -64,7 +64,7 @@
 <div class="container">
 <aside class="sidebar">
   <div class="channel-header">
-    <img src="{{ asset('avatars/' . Auth::user()->avatar) }}" class="channel-avatar">
+    <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img">
     <div><h3>{{ Auth::user()->name }}</h3><p>Kênh của bạn</p></div>
   </div>
   <a href="/studio/content" class="item active">🎬 Nội dung</a>
@@ -99,6 +99,7 @@
         <th>Lượt xem</th>
         <th>Số bình luận</th>
         <th>Lượt thích</th>
+        <th>Hành động</th>
       </tr>
     </thead>
     <tbody>
@@ -106,7 +107,7 @@
       <tr>
         <td><input type="checkbox"></td>
         <td class="video-cell">
-  <img src="/thumbnails/{{ $video->thumbnail }}" class="thumb">
+ <img src="{{ asset('storage/' . $video->thumbnail) }}" class="thumb">
           <div>
             <p class="title">{{ $video->title }}</p>
             <small>{{ $video->description }}</small>
@@ -118,6 +119,19 @@
         <td>{{ $video->views ?? 0 }}</td>
         <td>0</td>
         <td>100%</td>
+        <td>
+  <button onclick='openEditModal(
+    {{ $video->id }},
+    @json($video->title),
+    @json($video->description)
+)'>✏️</button>
+
+  <form action="{{ route('studio.video.destroy', $video->id) }}" method="POST" style="display:inline;">
+    @csrf
+    @method('DELETE')
+    <button type="submit" onclick="return confirm('Xóa video này?')">🗑️</button>
+</form>
+</td>
       </tr>
       @endforeach
     </tbody>
@@ -126,19 +140,36 @@
 </div>
 
 <!-- MODAL UPLOAD -->
+<!-- MODAL UPLOAD -->
 <div id="uploadModal" class="upload-modal">
   <div class="upload-box">
     <span class="close" onclick="closeUploadModal()">✖</span>
     <h2>Tải video lên</h2>
 
-    <form id="uploadForm" action="{{ route('studio.upload') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('studio.upload') }}" method="POST" enctype="multipart/form-data">
       @csrf
       <input type="file" name="video" required><br><br>
       <input type="text" name="title" placeholder="Tiêu đề" required><br><br>
       <textarea name="description" placeholder="Mô tả"></textarea><br><br>
       <button type="submit">Tải lên</button>
     </form>
+
     <p class="note">Video sẽ ở chế độ riêng tư cho đến khi bạn xuất bản.</p>
+  </div>
+</div>
+
+<div id="editModal" class="upload-modal">
+  <div class="upload-box">
+    <span class="close" onclick="closeEditModal()">✖</span>
+    <h2>Sửa video</h2>
+
+    <form id="editForm" method="POST">
+  @csrf
+  @method('PUT')
+  <input type="text" name="title" id="editTitle" placeholder="Tiêu đề"><br><br>
+  <textarea name="description" id="editDesc" placeholder="Mô tả"></textarea><br><br>
+  <button type="submit">Cập nhật</button>
+</form>
   </div>
 </div>
 
@@ -183,7 +214,21 @@ document.querySelector('.avatar-img')?.addEventListener('click', function(e) {
     e.stopPropagation();
     toggleAvatarMenu();
 });
+function openEditModal(id, title, desc) {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'block';
 
+    const form = document.getElementById('editForm');
+    form.action = `/studio/video/${id}`; // Đúng route PUT + id
+
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDesc').value = desc;
+}
+
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 </script>
 </body>
 </html>

@@ -31,7 +31,7 @@
       <div class="avatar-wrapper">
 
         <!-- AVATAR -->
-        <img src="{{ asset('avatars/' . (Auth::user()->avatar ?? 'default.png')) }}" 
+        <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img"
              class="avatar-img"
              onclick="toggleAvatarMenu()">
 
@@ -56,9 +56,12 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar collapsed">
-    <div class="item"><span>🏠</span><p>Trang chủ</p></div>
+    <a href="/" class="item">
+  <span>🏠</span>
+  <p>Trang chủ</p>
+</a>
     <div class="item"><span>🎬</span><p>Shorts</p></div>
-    <div class="item"><span>📺</span><p>Kênh</p></div>
+    <div class="item"><span>📺</span><p>Kênh đăng kí</p></div>
   </aside>
 
   <!-- CONTENT -->
@@ -68,7 +71,7 @@
     <div class="channel-header">
 
       <div class="channel-avatar">
-        <img src="{{ asset('avatars/' . (Auth::user()->avatar ?? 'default.png')) }}">
+     <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img">
       </div>
 
       <div class="channel-info">
@@ -102,8 +105,8 @@
     <a href="{{ route('video.show', $video->id) }}">
       <div class="video-card">
         @if($video->thumbnail)
-          <img src="{{ asset('thumbnails/' . $video->thumbnail) }}" 
-               alt="{{ $video->title }}" class="thumbnail-img">
+         <img src="{{ asset('storage/' . $video->thumbnail) }}" 
+     alt="{{ $video->title }}" class="thumbnail-img">
         @endif
         <h4>{{ $video->title }}</h4>
         <p>{{ $video->views ?? 0 }} lượt xem</p>

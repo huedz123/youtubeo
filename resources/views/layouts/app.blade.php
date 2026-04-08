@@ -34,7 +34,7 @@
 <div class="avatar-wrapper">
 
     <!-- AVATAR -->
-    <img src="{{ asset('avatars/' . Auth::user()->avatar) }}" 
+    <img src="{{ Storage::url(Auth::user()->avatar ?? 'avatars/default.png') }}" class="avatar-img"
          class="avatar-img"
          onclick="toggleAvatarMenu()">
 
@@ -62,11 +62,10 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar collapsed" id="sidebar">
-  <div class="item" >
-    <span>🏠</span>
-    <p>Trang chủ</p>
-  </div>
-
+  <a href="/" class="item">
+  <span>🏠</span>
+  <p>Trang chủ</p>
+</a>
   <div class="item">
     <span>🎬</span>
     <p>Shorts</p>
@@ -77,10 +76,10 @@
     <p>Kênh đăng ký</p>
   </div>
 
-  <div class="item">
+  <a href="/profile" class="item">
     <span>👥</span>
     <p>Bạn</p>
-  </div>
+</a>
 </aside>
 
   <!-- CONTENT -->
@@ -88,30 +87,32 @@
 <div class="video-section">
     <!-- CATEGORY -->
     <div class="categories">
-      <button class="active">Tất cả</button>
-      <button>Âm nhạc</button>
-      <button>Trò chơi</button>
-      <button>Tin tức</button>
+     <button onclick="filterCategory('all')">Tất cả</button>
+<button onclick="filterCategory('music')">Âm nhạc</button>
+<button onclick="filterCategory('game')">Trò chơi</button>
+<button onclick="filterCategory('news')">Tin tức</button>
     </div>
 
     <!-- VIDEO GRID -->
       <div class="videos">
-  @foreach($videos as $video)
+  @forelse($videos as $video)
     <a href="{{ route('video.show', $video->id) }}">
-      <div class="video-card">
+      <div class="video-card" data-category="{{ $video->category }}">
         @if($video->thumbnail)
-          <img src="{{ asset('thumbnails/' . $video->thumbnail) }}" 
-               alt="{{ $video->title }}" class="thumbnail-img">
+          <img src="{{ asset('storage/' . $video->thumbnail) }}" 
+               alt="{{ $video->title }}" 
+               class="thumbnail-img">
         @endif
         <h4>{{ $video->title }}</h4>
         <p>{{ $video->views ?? 0 }} lượt xem</p>
       </div>
     </a>
-  @endforeach
-
-  @if($videos->isEmpty())
+  @empty
     <p>Chưa có video nào được tải lên.</p>
-  @endif
+  @endforelse
+</div>
+<div class="pagination">
+    {{ $videos->links() }}
 </div>
 </div>
   </main>
